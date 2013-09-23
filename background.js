@@ -18,8 +18,7 @@ chrome.extension.onMessage.addListener(function(request,sender,sendResponse){
 		            		likeThis: data["likeThis"],
 		            		likesThis: data["likesThis"],
 		            		likeThisCap: data["likeThisCap"]
-		            	}, 
-		            	function(response) {}
+		            	}
 		            );  
 				});
 			}
