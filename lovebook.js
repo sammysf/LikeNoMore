@@ -16,19 +16,11 @@ var SHOULD_REPLACE_THIS = false;
 // Load initial replacements and create a listener for subsequent replacements
 function loadReplacements() {
 	// Load initial replacements
-	chrome.extension.sendMessage({subject:"load replacement strings request"},function(response){
-		if(response.subject == "load replacement strings response") {
-		    LIKE_REPLACE = response.like;
-			UNLIKE_REPLACE = response.unlike;
-			LIKE_THIS_REPLACE = response.likeThis;
-			LIKES_THIS_REPLACE = response.likesThis;
-			LIKE_THIS_CAP_REPLACE = response.likeThisCap;
-		}
-	});
+	chrome.extension.sendMessage({subject:"content load request"});
 
-	// Receive new replacements
+	// Receive replacements
 	chrome.extension.onMessage.addListener(function(request,sender,sendResponse){
-		if(request.subject === "load replacement strings request") {
+		if(request.subject === "replacement strings") {
 			LIKE_REPLACE = request.like;
 			UNLIKE_REPLACE = request.unlike;
 			LIKE_THIS_REPLACE = request.likeThis;
