@@ -1,0 +1,25 @@
+{
+    "name": "LoveBook",
+    "version": "0.0.1",
+    "manifest_version": 2,
+    "description": "Instead of liking things on Facebook, love them!",
+    "browser_action":
+      {
+        "default_icon": "icon.png",
+        "default_title": "LoveBook",
+        "default_popup": "popup.html"
+      },
+    "content_scripts": [
+      {
+        "matches": ["*://*.facebook.com/*"],
+        "js": ["jquery-2.0.3.min.js", "lovebook.js"]
+      }
+    ],
+    "background": 
+      {
+        "page": "background.html"
+      },
+    "permissions": [
+        "storage"
+    ]
+}
