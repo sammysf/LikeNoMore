@@ -135,14 +135,14 @@ $(document).ready(function() {
 				// We're looking for a string with a period (because 'like this' and 'likes this' always end in a period)
 				if (_this.textContent.indexOf(".") >= 0) {
 
-					var index = _this.textContent.lastIndexOf("like this");
-					if (index < 0) index = _this.textContent.lastIndexOf(OLD_LIKE_THIS_REPLACE);
+					var index = _this.textContent.lastIndexOf(" like this");
+					if (index < 0) index = _this.textContent.lastIndexOf(" " + OLD_LIKE_THIS_REPLACE);
 					if (index >= 0)
-						_this.textContent = _this.textContent.substring(0,index) + LIKE_THIS_REPLACE + ".";
+						_this.textContent = _this.textContent.substring(0,index) + " " + LIKE_THIS_REPLACE + ".";
 					else {
-						index = _this.textContent.lastIndexOf("likes this");
-						if (index < 0) index = _this.textContent.lastIndexOf(OLD_LIKES_THIS_REPLACE);
-						_this.textContent = _this.textContent.substring(0,index) + LIKES_THIS_REPLACE + ".";
+						index = _this.textContent.lastIndexOf(" likes this");
+						if (index < 0) index = _this.textContent.lastIndexOf(" " + OLD_LIKES_THIS_REPLACE);
+						_this.textContent = _this.textContent.substring(0,index) + " " + LIKES_THIS_REPLACE + ".";
 					}
 				}			
 			}
