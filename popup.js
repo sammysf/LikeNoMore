@@ -29,6 +29,12 @@ function saveReplacements() {
 		},
 		function(response){}
 	);
+
+	// Just saved, so we can't save again until something new is typed
+	// document.getElementById("Save").disabled = true;
+
+	// Just saved, so now we can Revert!
+	document.getElementById("Revert").disabled = false;
 }
 
 // Clear the values, then save them
@@ -38,6 +44,9 @@ function clearAndSaveReplacements() {
 	document.getElementById("likeThis").value = "";
 	document.getElementById("likesThis").value = "";
 	saveReplacements();
+
+	// Just reverted, so now we can't revert again yet
+	document.getElementById("Revert").disabled = true;
 }
 
 window.onload = function() {
@@ -47,10 +56,32 @@ window.onload = function() {
 	// Receive replacements
 	chrome.extension.onMessage.addListener(function(request,sender,sendResponse){
 		if(request.subject === "replacement strings") {
-			document.getElementById("like").value = request.like;
-			document.getElementById("unlike").value = request.unlike;
-			document.getElementById("likeThis").value = request.likeThis;
-			document.getElementById("likesThis").value = request.likesThis;
+			// If everything is a default, disable the revert button
+			var shouldDisableRevert = true;
+
+			// If the fields match the default value, don't actually insert anything
+			if (request.like != "Like") {
+				document.getElementById("like").value = request.like;
+				shouldDisableRevert = false;
+			}
+
+			if (request.unlike != "Unlike") {
+				document.getElementById("unlike").value = request.unlike;
+				shouldDisableRevert = false;
+			}
+
+			if (request.likeThis != "like this") {
+				document.getElementById("likeThis").value = request.likeThis;
+				shouldDisableRevert = false;
+			}
+
+			if (request.likesThis != "likes this") {
+				document.getElementById("likesThis").value = request.likesThis;
+				shouldDisableRevert = false;
+			}
+
+			if (shouldDisableRevert)
+				document.getElementById("Revert").disabled = true;
 		}
 	});
 

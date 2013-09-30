@@ -2,10 +2,24 @@
 chrome.extension.onMessage.addListener(function(request,sender,sendResponse){
 	// Add a listener to load replacements strings from storage
 	if(request.subject == "content load request" || request.subject == "popup load request") {
-		var replacementKeys = new Array("like", "unlike", "likeThis", "likesThis", "likeThisCap");
+		// var replacementKeys = new Array("like", "unlike", "likeThis", "likesThis", "likeThisCap");
 
-		// Get replacements, send them back
-		chrome.storage.sync.get(replacementKeys, function(data) {	
+		// Get replacements (all keys), send them back
+		chrome.storage.sync.get(null, function(data) {	
+			// If there are no values in storage
+			var like = data.like;
+    		var unlike = data["unlike"];
+    		var likeThis = data["likeThis"];
+    		var likesThis = data["likesThis"];
+    		var likeThisCap = data["likeThisCap"];
+
+    		// Set to default if nothing has been saved yet
+    		if (typeof like == "undefined") like = "Like";
+    		if (typeof unlike == "undefined") unlike = "Unlike";
+    		if (typeof likeThis == "undefined") likeThis = "like this";
+    		if (typeof likesThis == "undefined") likesThis = "likes this";
+    		if (typeof likeThisCap == "undefined") likeThisCap = "Like This";
+
 			// Send to content script		
 			if (request.subject == "content load request") {
 				chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
@@ -13,11 +27,11 @@ chrome.extension.onMessage.addListener(function(request,sender,sendResponse){
 		            	tabs[0].id, 
 		            	{
 		            		subject: "replacement strings",
-		            		like: data["like"],
-		            		unlike: data["unlike"],
-		            		likeThis: data["likeThis"],
-		            		likesThis: data["likesThis"],
-		            		likeThisCap: data["likeThisCap"]
+		            		like: like,
+		            		unlike: unlike,
+		            		likeThis: likeThis,
+		            		likesThis: likesThis,
+		            		likeThisCap: likeThisCap
 		            	}
 		            );  
 				});
@@ -27,11 +41,10 @@ chrome.extension.onMessage.addListener(function(request,sender,sendResponse){
 				chrome.extension.sendMessage(
 					{
 						subject: "replacement strings",
-						like: data["like"],
-						unlike: data["unlike"],
-						likeThis: data["likeThis"],
-						likesThis: data["likesThis"],
-						likeThisCap: data["likeThisCap"]
+						like: like,
+	            		unlike: unlike,
+	            		likeThis: likeThis,
+	            		likesThis: likesThis,
 					});
 			}
 	    });

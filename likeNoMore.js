@@ -126,23 +126,21 @@ $(document).ready(function() {
 		}
 	}
 
-	// More convoluted replace; need to recursively go down the spans until we find the
-	// one we're looking for
+	// More convoluted replace; need to recursively go down the spans until we find the one we're looking for
 	function replaceLikeThis($elem) {
 		$elem.contents().each(function() {
-			var _this = this;
-			if (_this.nodeType == 3) { // Text node
+			if (this.nodeType == 3) { // Text node
 				// We're looking for a string with a period (because 'like this' and 'likes this' always end in a period)
-				if (_this.textContent.indexOf(".") >= 0) {
-
-					var index = _this.textContent.lastIndexOf(" like this");
-					if (index < 0) index = _this.textContent.lastIndexOf(" " + OLD_LIKE_THIS_REPLACE);
+				if (this.textContent.indexOf(".") >= 0) {
+					alert(this.textContent);
+					var index = this.textContent.lastIndexOf("like this");
+					if (index < 0) index = this.textContent.lastIndexOf(OLD_LIKE_THIS_REPLACE);
 					if (index >= 0)
-						_this.textContent = _this.textContent.substring(0,index) + " " + LIKE_THIS_REPLACE + ".";
+						this.textContent = this.textContent.substring(0,index) + LIKE_THIS_REPLACE + ".";
 					else {
-						index = _this.textContent.lastIndexOf(" likes this");
-						if (index < 0) index = _this.textContent.lastIndexOf(" " + OLD_LIKES_THIS_REPLACE);
-						_this.textContent = _this.textContent.substring(0,index) + " " + LIKES_THIS_REPLACE + ".";
+						index = this.textContent.lastIndexOf("likes this");
+						if (index < 0) index = this.textContent.lastIndexOf(OLD_LIKES_THIS_REPLACE);
+						this.textContent = this.textContent.substring(0,index) + LIKES_THIS_REPLACE + ".";
 					}
 				}			
 			}
