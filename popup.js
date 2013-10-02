@@ -1,23 +1,22 @@
-// Tell the background script to save the new replacements
+// Tell the background script to save the new replacements 
+// and content script to update page
 function saveReplacements() {
-	console.log(document.getElementById("like").value);
-
 	// Change empties (or spaces) to defaults
-	var like = document.getElementById("like").value;
+	var like = $("#like").val();
 	if (like.length == 0)
 		like = "Like"; 
-	var unlike = document.getElementById("unlike").value;
+	var unlike = $("#unlike").val();
 	if (unlike.length == 0)
 		unlike = "Unlike";
-	var likeThis = document.getElementById("likeThis").value;
+	var likeThis = $("#likeThis").val();
 	if (likeThis.length == 0)
 		likeThis = "like this";
-	var likesThis = document.getElementById("likesThis").value;
+	var likesThis = $("#likesThis").val();
 	if (likesThis.length == 0)
 		likesThis = "likes this";
 	var likeThisCap = likeThis;
 
-	// Tell front to change Facebook page, save new values to storage
+	// Send message
 	chrome.extension.sendMessage(
 		{
 			subject:"save replacement strings request",
@@ -26,27 +25,55 @@ function saveReplacements() {
 			likeThis: likeThis,
 			likesThis: likesThis,
 			likeThisCap: likeThisCap
-		},
-		function(response){}
+		}
 	);
 
 	// Just saved, so we can't save again until something new is typed
-	// document.getElementById("Save").disabled = true;
+	$("#Save").attr("disabled", true);
 
 	// Just saved, so now we can Revert!
-	document.getElementById("Revert").disabled = false;
+	$("#Revert").attr("disabled", false);
+
+	// Update internal data values for fields
+	$(":text").each(function() {
+		$(this).data('oldVal', $(this).val());
+	});
 }
 
 // Clear the values, then save them
 function clearAndSaveReplacements() {
-	document.getElementById("like").value = "";
-	document.getElementById("unlike").value = "";
-	document.getElementById("likeThis").value = "";
-	document.getElementById("likesThis").value = "";
+	$(":text").each(function() {
+		$(this).val("");
+	});
 	saveReplacements();
 
 	// Just reverted, so now we can't revert again yet
-	document.getElementById("Revert").disabled = true;
+	$("#Revert").attr("disabled", true);
+}
+
+// Automatically enable Save button if user changes text from what is in the database
+function autoEnableSave() {
+	$(":text").each(function() {
+		var textField = $(this);
+		textField.data('oldVal', textField.val());
+
+		textField.bind("propertychange keyup input paste", function(event){
+			var saveButton = $("#Save");
+			var numberOfDefaultTextFields = saveButton.data('numberOfDefaultTextFields');
+
+			// If value has changed from default, enable Save button
+			if (textField.data('oldVal') != textField.val()) {
+				if (textField.data('isDefault') == true)				
+					saveButton.data('numberOfDefaultTextFields', numberOfDefaultTextFields-1).trigger('changeData');
+				textField.data('isDefault', false);
+			}
+			else {
+				if (textField.data('isDefault') == false)
+					saveButton.data('numberOfDefaultTextFields', numberOfDefaultTextFields+1).trigger('changeData');
+				textField.data('isDefault', true);
+			}
+		});
+	});
 }
 
 window.onload = function() {
@@ -61,31 +88,47 @@ window.onload = function() {
 
 			// If the fields match the default value, don't actually insert anything
 			if (request.like != "Like") {
-				document.getElementById("like").value = request.like;
+				$("#like").val(request.like);
 				shouldDisableRevert = false;
 			}
 
 			if (request.unlike != "Unlike") {
-				document.getElementById("unlike").value = request.unlike;
+				$("#unlike").val(request.unlike);
 				shouldDisableRevert = false;
 			}
 
 			if (request.likeThis != "like this") {
-				document.getElementById("likeThis").value = request.likeThis;
+				$("#likeThis").val(request.likeThis);
 				shouldDisableRevert = false;
 			}
 
 			if (request.likesThis != "likes this") {
-				document.getElementById("likesThis").value = request.likesThis;
+				$("#likesThis").val(request.likesThis);
 				shouldDisableRevert = false;
 			}
 
-			if (shouldDisableRevert)
-				document.getElementById("Revert").disabled = true;
+			$("#Save").attr("disabled", true);
+			$("#Revert").attr("disabled", shouldDisableRevert);
+
+			// Set up the Save button disabling
+			$("#Save").data('numberOfDefaultTextFields', 4);
+			$(":text").each(function() {
+				$(this).data('isDefault', true);
+			});
+			autoEnableSave();
 		}
 	});
 
-	// Setup button functionality
-	document.getElementById("Save").addEventListener('click', saveReplacements);
-	document.getElementById("Revert").addEventListener('click', clearAndSaveReplacements);
+	// Set up button onclick functionality
+	$("#Save").click(saveReplacements);
+	$("#Revert").click(clearAndSaveReplacements);
+
+	// Add event listener to Save button for when data is updated
+	$("#Save").on("changeData", function(e) {
+		var saveButton = $(this);
+		if (saveButton.data('numberOfDefaultTextFields') == 4) 
+			saveButton.attr("disabled", true);
+		else
+			saveButton.attr("disabled", false);
+	});
 }
